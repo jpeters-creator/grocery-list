@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Groceries" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Grocery List</title>
+  <style>
+    :root {
+      --bg: #f6f3ee;
+      --card: #fffdf8;
+      --ink: #1f1a14;
+      --muted: #6b6258;
+      --line: #e6dfd4;
+      --accent: #3d6b4f;
+      --checked: #8a8176;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { padding: 16px 14px 56px; max-width: 520px; margin: 0 auto; }
+    header { margin-bottom: 8px; }
+    h1 { font-size: 1.45rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+    .sub { color: var(--muted); font-size: 0.92rem; }
+    .progress { color: var(--muted); font-size: 0.88rem; margin-top: 4px; }
+    .toolbar { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+    button, select, input[type="text"] {
+      appearance: none; border: 1px solid var(--line); background: var(--card);
+      color: var(--ink); border-radius: 10px; padding: 11px 12px; font-size: 1rem;
+    }
+    button { font-weight: 600; }
+    button.ghost { background: transparent; color: var(--muted); font-weight: 500; }
+    button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .add {
+      display: grid; grid-template-columns: 1fr auto; gap: 8px;
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 10px; margin: 8px 0 14px;
+    }
+    .add input { width: 100%; }
+    .add-controls { display: grid; grid-template-columns: 1fr; gap: 8px; grid-column: 1 / -1; }
+    section {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      margin: 12px 0; overflow: hidden;
+    }
+    h2 {
+      margin: 0; padding: 12px 14px 8px; font-size: 0.78rem; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+    }
+    .item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 14px; border-top: 1px solid var(--line);
+      min-height: 52px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    .item input[type="checkbox"] { width: 22px; height: 22px; flex: 0 0 22px; accent-color: var(--accent); }
+    .item span { font-size: 1.05rem; line-height: 1.3; flex: 1; }
+    .item.done span { color: var(--checked); text-decoration: line-through; }
+    .remove {
+      border: 0; background: transparent; color: var(--muted); padding: 6px 4px;
+      font-size: 1.2rem; line-height: 1;
+    }
+    footer { margin-top: 18px; color: var(--muted); font-size: 0.82rem; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Grocery list</h1>
+    <div class="sub">Open this page in Safari. Checks stay after you lock or restart the phone.</div>
+    <div class="progress" id="progress">0 of 0 done</div>
+    <div class="toolbar">
+      <button type="button" id="uncheck">Uncheck all</button>
+      <button type="button" class="ghost" id="hide">Hide checked</button>
+    </div>
+  </header>
+
+  <form class="add" id="add-form">
+    <input type="text" id="new-item" placeholder="Add an item…" autocomplete="off" enterkeyhint="done" />
+    <button type="submit" class="primary">Add</button>
+    <div class="add-controls">
+      <select id="new-section" aria-label="Section">
+        <option value="produce">Produce</option>
+        <option value="meat">Meat &amp; Seafood</option>
+        <option value="dairy">Dairy / Refrigerated</option>
+        <option value="frozen">Frozen</option>
+        <option value="pantry">Pantry / Center aisles</option>
+        <option value="beverages">Beverages</option>
+        <option value="household">Household / Pharmacy</option>
+      </select>
+    </div>
+  </form>
+
+  <section data-section="produce">
+    <h2>Produce</h2>
+    <label class="item"><input type="checkbox" data-id="basil"><span>Fresh basil</span></label>
+    <label class="item"><input type="checkbox" data-id="parsley"><span>Leaf parsley</span></label>
+    <label class="item"><input type="checkbox" data-id="oranges"><span>Oranges</span></label>
+    <label class="item"><input type="checkbox" data-id="celery"><span>Organic celery</span></label>
+    <label class="item"><input type="checkbox" data-id="avocado"><span>Avocado</span></label>
+    <label class="item"><input type="checkbox" data-id="sweet-potatoes"><span>Sweet potatoes</span></label>
+  </section>
+
+  <section data-section="meat">
+    <h2>Meat &amp; Seafood</h2>
+    <label class="item"><input type="checkbox" data-id="chicken-breasts"><span>Chicken breasts</span></label>
+    <label class="item"><input type="checkbox" data-id="chicken-thighs"><span>Chicken thighs</span></label>
+    <label class="item"><input type="checkbox" data-id="turkey-burgers"><span>Turkey burgers</span></label>
+    <label class="item"><input type="checkbox" data-id="salmon"><span>Wild-caught salmon</span></label>
+  </section>
+
+  <section data-section="dairy">
+    <h2>Dairy / Refrigerated</h2>
+    <label class="item"><input type="checkbox" data-id="cheddar"><span>Sharp cheddar cheese</span></label>
+    <label class="item"><input type="checkbox" data-id="parmesan"><span>Parmesan cheese block</span></label>
+    <label class="item"><input type="checkbox" data-id="sour-cream"><span>Sour cream</span></label>
+    <label class="item"><input type="checkbox" data-id="cottage"><span>Organic cottage cheese</span></label>
+  </section>
+
+  <section data-section="frozen">
+    <h2>Frozen</h2>
+    <label class="item"><input type="checkbox" data-id="edamame"><span>Organic edamame</span></label>
+  </section>
+
+  <section data-section="pantry">
+    <h2>Pantry / Center aisles</h2>
+    <label class="item"><input type="checkbox" data-id="crackers"><span>Simple Mills almond flour crackers</span></label>
+    <label class="item"><input type="checkbox" data-id="cookies"><span>Simple Mills chocolate cookies</span></label>
+    <label class="item"><input type="checkbox" data-id="red-sauce"><span>Organic red pasta sauce</span></label>
+    <label class="item"><input type="checkbox" data-id="white-sauce"><span>Organic white pasta sauce</span></label>
+    <label class="item"><input type="checkbox" data-id="gf-pasta"><span>GF elbow pasta</span></label>
+    <label class="item"><input type="checkbox" data-id="pea-soup"><span>Organic pea soup</span></label>
+    <label class="item"><input type="checkbox" data-id="sugar"><span>C&amp;H sugar (for birds)</span></label>
+  </section>
+
+  <section data-section="beverages">
+    <h2>Beverages</h2>
+    <label class="item"><input type="checkbox" data-id="ph-water"><span>pH water — lots</span></label>
+    <label class="item"><input type="checkbox" data-id="beer"><span>Beer for Ken</span></label>
+  </section>
+
+  <section data-section="household">
+    <h2>Household / Pharmacy</h2>
+    <label class="item"><input type="checkbox" data-id="paper-towels"><span>Paper towels</span></label>
+    <label class="item"><input type="checkbox" data-id="bandages"><span>Circular bandages (Band-Aid type)</span></label>
+  </section>
+
+  <footer>
+    Keep using this same web address. Then Share → Add to Home Screen so it opens like an app.
+  </footer>
+
+  <script>
+    const KEY = "grocery-list-2026-09-13-v2";
+    const progress = document.getElementById("progress");
+    const form = document.getElementById("add-form");
+    const input = document.getElementById("new-item");
+    const sectionSelect = document.getElementById("new-section");
+    let hideChecked = false;
+
+    function emptyState() {
+      return { checks: {}, extras: [] };
+    }
+
+    function loadState() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(KEY) || "null");
+        if (raw && typeof raw === "object") {
+          return { checks: raw.checks || {}, extras: raw.extras || [] };
+        }
+      } catch (e) {}
+      return emptyState();
+    }
+
+    function saveState(state) {
+      localStorage.setItem(KEY, JSON.stringify(state));
+    }
+
+    function boxes() {
+      return [...document.querySelectorAll("input[type=checkbox]")];
+    }
+
+    function makeItem(id, text, custom) {
+      const label = document.createElement("label");
+      label.className = "item";
+      const box = document.createElement("input");
+      box.type = "checkbox";
+      box.dataset.id = id;
+      const span = document.createElement("span");
+      span.textContent = text;
+      label.appendChild(box);
+      label.appendChild(span);
+      if (custom) {
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "remove";
+        remove.setAttribute("aria-label", "Remove " + text);
+        remove.textContent = "×";
+        remove.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const state = loadState();
+          state.extras = state.extras.filter(item => item.id !== id);
+          delete state.checks[id];
+          saveState(state);
+          label.remove();
+          update();
+        });
+        label.appendChild(remove);
+      }
+      box.addEventListener("change", () => {
+        const state = loadState();
+        state.checks[id] = box.checked;
+        saveState(state);
+        update();
+      });
+      return label;
+    }
+
+    function renderExtras() {
+      document.querySelectorAll("[data-custom='1']").forEach(el => el.remove());
+      const state = loadState();
+      state.extras.forEach(item => {
+        const section = document.querySelector('section[data-section="' + item.section + '"]');
+        if (!section) return;
+        const row = makeItem(item.id, item.text, true);
+        row.dataset.custom = "1";
+        section.appendChild(row);
+      });
+    }
+
+    function applyChecks() {
+      const state = loadState();
+      boxes().forEach(box => {
+        box.checked = !!state.checks[box.dataset.id];
+      });
+    }
+
+    function update() {
+      const all = boxes();
+      const done = all.filter(b => b.checked).length;
+      progress.textContent = done + " of " + all.length + " done";
+      all.forEach(box => {
+        const row = box.closest(".item");
+        row.classList.toggle("done", box.checked);
+        row.style.display = hideChecked && box.checked ? "none" : "flex";
+      });
+      document.querySelectorAll("section").forEach(sec => {
+        const visible = [...sec.querySelectorAll(".item")].some(el => el.style.display !== "none");
+        sec.style.display = visible ? "" : "none";
+      });
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      const state = loadState();
+      state.extras.push({
+        id: "custom-" + Date.now(),
+        section: sectionSelect.value,
+        text
+      });
+      saveState(state);
+      input.value = "";
+      renderExtras();
+      applyChecks();
+      update();
+      input.focus();
+    });
+
+    document.getElementById("uncheck").addEventListener("click", () => {
+      const state = loadState();
+      boxes().forEach(box => { state.checks[box.dataset.id] = false; });
+      saveState(state);
+      applyChecks();
+      update();
+    });
+
+    document.getElementById("hide").addEventListener("click", (e) => {
+      hideChecked = !hideChecked;
+      e.target.textContent = hideChecked ? "Show checked" : "Hide checked";
+      update();
+    });
+
+    boxes().forEach(box => {
+      box.addEventListener("change", () => {
+        const state = loadState();
+        state.checks[box.dataset.id] = box.checked;
+        saveState(state);
+        update();
+      });
+    });
+
+    renderExtras();
+    applyChecks();
+    update();
+  </script>
+</body>
+</html>
